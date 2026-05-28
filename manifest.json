@@ -8,7 +8,14 @@
             "matches": [
                 "<all_urls>"
             ],
+            "css": [
+                "styles.css"
+            ],
             "js": [
+                "offices.js",
+                "matcher.js",
+                "highlight.js",
+                "ui.js",
                 "content.js"
             ],
             "run_at": "document_idle"
