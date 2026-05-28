@@ -1,23 +1,38 @@
 (() => {
-    const CITIES = ["Kalamazoo", "Cleveland", "Houston", "Chicago", "Boston"];
-
-    const MAPS_LINKS = {
-        kalamazoo: "https://www.google.com/maps/search/RoviSys+Kalamazoo",
-        cleveland: "https://www.google.com/maps/search/RoviSys+Cleveland",
-        houston: "https://www.google.com/maps/search/RoviSys+Houston",
-        chicago: "https://www.google.com/maps/search/RoviSys+Chicago",
-        boston: "https://www.google.com/maps/search/RoviSys+Boston",
-    };
+    const OFFICES = [
+        { city: "Kalamazoo" },
+        { city: "Aurora", qualifiers: ["ohio", "oh"] },
+        { city: "Houston" },
+        { city: "Chicago" },
+        { city: "Boston" },
+        { city: "Holly Springs" },
+        { city: "Thousand Oaks" },
+        { city: "Atlanta" },
+        { city: "Singapore" },
+        { city: "Phoenix" },
+        { city: "Puerto Rico" },
+        { city: "Indonesia" },
+        { city: "Columbus", qualifiers: ["ohio", "oh"] },
+        { city: "San Diego" },
+        { city: "Malaysia" },
+        { city: "Ireland" },
+        { city: "Manassas" },
+        { city: "Japan" },
+        { city: "Netherlands" },
+        { city: "Taiwan" },
+    ];
 
     const pageText = document.body.innerText;
-    const foundCities = CITIES.filter((city) =>
-        new RegExp(`\\b${city}\\b`, "i").test(pageText)
-    );
+    const foundCities = OFFICES.filter((office) =>
+        isOfficeMentioned(pageText, office)
+    ).map((office) => office.city);
 
     if (foundCities.length === 0) return;
 
+    const uniqueFoundCities = [...new Set(foundCities)];
+
     // Highlight matched cities in the page
-    highlightCities(foundCities);
+    highlightCities(uniqueFoundCities);
 
     // Inject animation styles
     const style = document.createElement("style");
@@ -52,9 +67,9 @@
     const popup = document.createElement("div");
     popup.id = "rovisys-city-popup";
 
-    const cityLines = foundCities.map((city) => {
-        const key = city.toLowerCase();
-        return `<div style="margin-bottom:8px;">🏢 RoviSys has an office in <strong>${city}</strong>! <a href="${MAPS_LINKS[key]}" target="_blank" rel="noopener noreferrer" style="color:#4fc3f7;margin-left:4px;">📍 Map</a></div>`;
+    const cityLines = uniqueFoundCities.map((city) => {
+        const mapLink = `https://www.google.com/maps/search/${encodeURIComponent(`RoviSys ${city}`)}`;
+        return `<div style="margin-bottom:8px;">🏢 RoviSys has an office in <strong>${city}</strong>! <a href="${mapLink}" target="_blank" rel="noopener noreferrer" style="color:#4fc3f7;margin-left:4px;">📍 Map</a></div>`;
     });
 
     popup.innerHTML = `
@@ -93,6 +108,32 @@
     };
     popup.querySelector("#rovisys-close-btn").addEventListener("click", dismiss);
     overlay.addEventListener("click", dismiss);
+
+    function isOfficeMentioned(text, office) {
+        const cityRegex = new RegExp(`\\b${escapeRegExp(office.city)}\\b`, "gi");
+
+        if (!office.qualifiers || office.qualifiers.length === 0) {
+            return cityRegex.test(text);
+        }
+
+        const lowerText = text.toLowerCase();
+        const qualifierRegexes = office.qualifiers.map(
+            (qualifier) => new RegExp(`\\b${escapeRegExp(qualifier.toLowerCase())}\\b`, "i")
+        );
+
+        let match;
+        while ((match = cityRegex.exec(text)) !== null) {
+            const start = Math.max(0, match.index - 60);
+            const end = Math.min(text.length, match.index + match[0].length + 60);
+            const context = lowerText.slice(start, end);
+
+            if (qualifierRegexes.some((regex) => regex.test(context))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     function highlightCities(cities) {
         const walker = document.createTreeWalker(
