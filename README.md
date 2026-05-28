@@ -1,12 +1,13 @@
 # RoviSys City Detector Chrome Extension
 
-A lightweight Chrome extension that scans visible webpage text for RoviSys office cities and shows a notification when a match is found.
+A Chrome extension that detects mentions of RoviSys office locations on webpages and shows a contextual notification.
 
 ## Features
 
 - Scans visible page text for city names
 - Matches against predefined RoviSys office cities
 - Uses case-insensitive detection
+- Supports location disambiguation for ambiguous cities (for example, Aurora, OH and Columbus, OH)
 - Shows a styled notification popup when a match is found
 - Displays only one notification per page load
 - Highlights detected city names on the page
@@ -47,8 +48,23 @@ A lightweight Chrome extension that scans visible webpage text for RoviSys offic
 ```text
 .
 ├── manifest.json
-└── content.js
+├── offices.js
+├── matcher.js
+├── highlight.js
+├── ui.js
+├── content.js
+├── styles.css
+└── icons/
 ```
+
+- `manifest.json`: Extension configuration, icon settings, and content script load order.
+- `offices.js`: Office city list plus disambiguation qualifiers for ambiguous locations.
+- `matcher.js`: Matching engine that finds valid office mentions in page text.
+- `highlight.js`: Highlights detected office city mentions in the page content.
+- `ui.js`: Builds and controls the notification popup and overlay behavior.
+- `content.js`: Orchestrates matching, highlighting, and popup rendering.
+- `styles.css`: Shared styles and animations for popup, overlay, and highlights.
+- `icons/`: PNG assets used for extension and toolbar icons.
 
 ## Getting Started
 
